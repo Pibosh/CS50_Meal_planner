@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html lang="pl">
+    <head>
+        <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta -->
+        <meta charset="utf-8"/>
+        <meta content="initial-scale=1, width=device-width" name="viewport"/>
+        
+        <!-- Bootstrap stylesheets -->
+        <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="node_modules/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" />
+        
+        <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet"/>
+        
+        <script src="node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        
+        <!-- https://validatejs.org/ -->
+        <script src="//cdnjs.cloudflare.com/ajax/libs/validate.js/0.11.1/validate.min.js"></script>
+        
+        <title>Meal planner: {% block title %}{% endblock %}</title>
+    
+    </head>
+    
+    <body>
+            
+    </body>
+
+
+</html>
