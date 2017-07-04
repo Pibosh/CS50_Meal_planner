@@ -6,23 +6,54 @@
         <meta content="initial-scale=1, width=device-width" name="viewport"/>
         
         <!-- Bootstrap stylesheets -->
-        <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-        <link href="node_modules/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" />
+        <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/solar/bootstrap.min.css" rel="stylesheet"/>
         
+        
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        
+        <!-- own css -->
         <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet"/>
-        
-        <script src="node_modules/jquery/dist/jquery.min.js"></script>
-        <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
         
         <!-- https://validatejs.org/ -->
         <script src="//cdnjs.cloudflare.com/ajax/libs/validate.js/0.11.1/validate.min.js"></script>
+        
+        <!-- typeahead: https://github.com/corejavascript/typeahead.js/blob/master/doc/jquery_typeahead.md -->
+        <script src="https://cdn.rawgit.com/corejavascript/typeahead.js/master/dist/typeahead.jquery.js"></script>
+        
+        <!-- http://stewartjpark.com/Flask-JSGlue/ -->
+        {{ JSGlue.include() }}
+        
+        <!-- own script -->
+        <script src="{{ url_for('static', filename='scripts.js') }}"></script>
         
         <title>Meal planner: {% block title %}{% endblock %}</title>
     
     </head>
     
     <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Meal Planner</a>
+                </div>
+                {% if session.user_id %}
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('homepage')}}">Home</a></li>
+                    <li><a href="{{ url_for('check_recipes')}}">Check recipes</a></li>
+                    <li><a href="{{ url_for('add_recipe')}}">Add recipe</a></li>
+                    <li><a href="{{ url_for('generate_meals')}}">Generate meals</a></li>
+                </ul>
+                {% else %}
+            </div>
+        </nav>
+        <div class="jumbotron text-center">
+            <h1>Meal planner</h1>
+            <h3>Let me plan your meals - for you</h3>
+        </div>
+        <div class="container">
             
+        </div>
     </body>
 
 
