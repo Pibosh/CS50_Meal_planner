@@ -8,9 +8,9 @@ from helpers import *
 import sqlite3
 
 #adding JSGlue to ensure adding sripts to site
-jsglue = JSGlue()
+
 app = Flask(__name__)
-jsglue.init_app(app)
+JSGlue(app)
 
 db = sqlite3.connect('data.db')
 
@@ -97,6 +97,10 @@ def login():
      # redirect user to login form
      return redirect(url_for("login"))
 
-  @app.route('/_checkUser', methods=['POST'])
-  def _checkUser():
-	  """TODO"""
+@app.route('/_checkUser')
+def _checkUser():
+	"""TODO"""
+
+@app.route('/_checkEmail')
+def _checkEmail():
+	"""TODO"""
