@@ -35,7 +35,7 @@
         <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">Meal Planner</a>
+                    <a class="navbar-brand" href="{{ url_for('index')}}">Meal Planner</a>
                 </div>
                 {% if session.user_id %}
                 <ul class="nav navbar-nav">
@@ -43,6 +43,9 @@
                     <li><a href="{{ url_for('check_recipes')}}">Check recipes</a></li>
                     <li><a href="{{ url_for('add_recipe')}}">Add recipe</a></li>
                     <li><a href="{{ url_for('generate_meals')}}">Generate meals</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="{{ url_for('logout')}}">logout</a></li>
                 </ul>
                 {% else %}
                 <ul class="nav navbar-nav navbar-right">
