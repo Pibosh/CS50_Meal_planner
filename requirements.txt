@@ -1,0 +1,6 @@
+Flask
+Flask-Session
+Flask-Login
+Flask-Mail
+Flask-JSGlue
+passlib

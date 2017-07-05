@@ -39,7 +39,7 @@
                 </div>
                 {% if session.user_id %}
                 <ul class="nav navbar-nav">
-                    <li><a href="{{ url_for('homepage')}}">Home</a></li>
+                    <li><a href="{{ url_for('index')}}">Home</a></li>
                     <li><a href="{{ url_for('check_recipes')}}">Check recipes</a></li>
                     <li><a href="{{ url_for('add_recipe')}}">Add recipe</a></li>
                     <li><a href="{{ url_for('generate_meals')}}">Generate meals</a></li>
@@ -57,17 +57,21 @@
             <h3>Let me plan your meals - for you</h3>
         </div>
         <div class="container">
-          {% if get_flashed_messages() %}
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
               <header>
-                  <div class="alert alert-info" role="alert">
-                      {{ get_flashed_messages() | join(" ") }}
+                {% for category, message in messages%}
+                  <div class="alert {{category}} alert-dismissible" role="alert">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                      {{message}}
                   </div>
+                {% endfor %}
               </header>
           {% endif %}
+          {% endwith %}
           <main>
               {% block main %}{% endblock %}
           </main>
-
 
         </div>
     </body>
