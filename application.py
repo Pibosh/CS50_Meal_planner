@@ -55,28 +55,28 @@ def generate_meals():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 	"""Register user."""
-  	#clear any user currently logged in
-  	session.clear()
+	#clear any user currently logged in
+	session.clear()
 
-  	#checking if user is using submiting form via POST method
-  	if request.method == "POST":
-  	#set variables from request forms
+	#checking if user is using submiting form via POST method
+	if request.method == "POST":
+	#set variables from request forms
 		username = request.form.get("username")
 		password_1 = request.form.get("password_1")
 		password_2 = request.form.get("password_2")
 		email = request.form.get("email")
 
-	#hash password
-	hashed_passwd = crypt.hash(password_1)
+		#hash password
+		hashed_passwd = crypt.hash(password_1)
 
-	#user form are already validated by validate.js and _checkUser route
-	db.execute("INSERT INTO users (username, hash) VALUES (:username, :hashed_passwd)",
-			   username=username, hashed_passwd=hashed_passwd)
+		#user form are already validated by validate.js and _checkUser route
+		db.execute("INSERT INTO users (username, hash) VALUES (:username, :hashed_passwd)",
+			   		username=username, hashed_passwd=hashed_passwd)
 
-	#code for logging user in just after registration
-	login = db.execute("SELECT * FROM users where username = :username", username=username)
-	session["user_id"] = login[0]["id"]
-	flash("Registered? Good!", 'alert-success')
+		#code for logging user in just after registration
+		login = db.execute("SELECT * FROM users where username = :username", username=username)
+		session["user_id"] = login[0]["id"]
+		flash("Registered? Good!", 'alert-success')
 
 	else:
 		return render_template("register.html")
@@ -86,16 +86,15 @@ def login():
 	flash('TODO', 'alert-info')
 	return render_template('login.html')
 
- @app.route('/logout')
- @login_required
- def logout():
-	 """Log user out."""
+@app.route('/logout')
+@login_required
+def logout():
+	"""Log user out."""
+	# forget any user_id
+	session.clear()
 
-     # forget any user_id
-     session.clear()
-
-     # redirect user to login form
-     return redirect(url_for("login"))
+	# redirect user to login form
+	return redirect(url_for("login"))
 
 @app.route('/_checkUser')
 def _checkUser():
