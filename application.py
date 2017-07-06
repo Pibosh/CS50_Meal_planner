@@ -12,8 +12,35 @@ import sqlite3
 app = Flask(__name__)
 JSGlue(app)
 
-db = sqlite3.connect('data.db')
+#connecting to database and creating a cursor
+conn = sqlite3.connect('data.db')
+db = conn.cursor()
+#turning foreign_keys on according to sqlite3 docs
+db.execute("PRAGMA foreign_keys = ON")
 
+#creating a tables - if it doesn't exist
+#first - create table for user with id, username, password, email and verification
+db.execute("CREATE TABLE IF NOT EXISTS 'users' ('id' INTEGER PRIMARY KEY \
+			AUTOINCREMENT NOT NULL, 'username' TEXT UNIQUE NOT NULL, 'hash' TEXT \
+			NOT NULL, 'email' TEXT NOT NULL, 'veryfied' BOOLEAN DEFAULT 0 );")
+#then - create table containing recipes
+db.execute("CREATE TABLE IF NOT EXISTS 'recipe' ('recipe_id' INTEGER PRIMARY KEY \
+			AUTOINCREMENT NOT NULL, 'user_id' INTEGER, \
+			'title' VARCHAR(150) NOT NULL, 'prepare' \
+			TEXT NOT NULL, 'meal_type' TEXT, \
+			FOREIGN KEY (user_id) REFERENCES users(id), UNIQUE (title), \
+			CHECK (meal_type IN ('breakfast', 'dinner', 'supper') ));")
+#then - create table containing ingridients
+db.execute("CREATE TABLE IF NOT EXISTS 'ingridients' ('ingridient_id' INTEGER PRIMARY \
+			KEY AUTOINCREMENT NOT NULL, 'ingridient_name' VARCHAR(150), 'unit' \
+			VARCHAR(5), UNIQUE (ingridient_name));")
+#then - create table containing recipe_items - ingridients for particular recipe
+db.execute("CREATE TABLE IF NOT EXISTS 'recipe_items' ('item_id' INTEGER PRIMARY KEY \
+			NOT NULL, 'recipe_indgridient' VARCHAR(150), 'quantity' REAL NOT NULL, \
+			FOREIGN KEY (item_id) REFERENCES recipe(recipe_id), \
+			FOREIGN KEY (recipe_indgridient) REFERENCES ingridients('ingridient_name'));")
+
+db.execute("")
 # ensure responses aren't cached
 if app.config["DEBUG"]:
 	@app.after_request
@@ -70,12 +97,13 @@ def register():
 		hashed_passwd = crypt.hash(password_1)
 
 		#user form are already validated by validate.js and _checkUser route
-		db.execute("INSERT INTO users (username, hash) VALUES (:username, :hashed_passwd)",
-			   		username=username, hashed_passwd=hashed_passwd)
+		db.execute("INSERT INTO users (username, hash) VALUES (?, ?)",
+			   		username, hashed_passwd)
 
 		#code for logging user in just after registration
-		login = db.execute("SELECT * FROM users where username = :username", username=username)
-		session["user_id"] = login[0]["id"]
+		db.execute("SELECT * FROM users where username = ?", username)
+		login = db.fetchone()
+		session["user_id"] = login[0]["user_id"]
 		flash("Registered? Good!", 'alert-success')
 
 	else:
@@ -96,10 +124,10 @@ def logout():
 	# redirect user to login form
 	return redirect(url_for("login"))
 
-@app.route('/_checkUser')
+@app.route('/_checkUser', methods=['POST'])
 def _checkUser():
 	"""TODO"""
 
-@app.route('/_checkEmail')
+@app.route('/_checkEmail', methods=['POST'])
 def _checkEmail():
 	"""TODO"""
