@@ -21,8 +21,9 @@ db.execute("PRAGMA foreign_keys = ON")
 #creating a tables - if it doesn't exist
 #first - create table for user with id, username, password, email and verification
 db.execute("CREATE TABLE IF NOT EXISTS 'users' ('id' INTEGER PRIMARY KEY \
-			AUTOINCREMENT NOT NULL, 'username' TEXT UNIQUE NOT NULL, 'hash' TEXT \
-			NOT NULL, 'email' TEXT NOT NULL, 'veryfied' BOOLEAN DEFAULT 0 );")
+			AUTOINCREMENT NOT NULL, 'username' TEXT NOT NULL, 'hash' TEXT \
+			NOT NULL, 'email' TEXT NOT NULL, 'veryfied' BOOLEAN DEFAULT 0, \
+			UNIQUE (username), UNIQUE (email) );")
 #then - create table containing recipes
 db.execute("CREATE TABLE IF NOT EXISTS 'recipe' ('recipe_id' INTEGER PRIMARY KEY \
 			AUTOINCREMENT NOT NULL, 'user_id' INTEGER, \
@@ -38,9 +39,12 @@ db.execute("CREATE TABLE IF NOT EXISTS 'ingridients' ('ingridient_id' INTEGER PR
 db.execute("CREATE TABLE IF NOT EXISTS 'recipe_items' ('item_id' INTEGER PRIMARY KEY \
 			NOT NULL, 'recipe_indgridient' VARCHAR(150), 'quantity' REAL NOT NULL, \
 			FOREIGN KEY (item_id) REFERENCES recipe(recipe_id), \
-			FOREIGN KEY (recipe_indgridient) REFERENCES ingridients('ingridient_name'));")
+			FOREIGN KEY (recipe_indgridient) REFERENCES ingridients(ingridient_name));")
 
-db.execute("")
+#Saving changes in database and closing connection due to multi-thread issues with flask
+conn.commit()
+db.close()
+
 # ensure responses aren't cached
 if app.config["DEBUG"]:
 	@app.after_request
@@ -57,6 +61,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 @app.route('/')
+@app.route('/index')
 def index():
 	flash('TODO', 'alert-info')
 	return render_template('index.html')
@@ -82,8 +87,13 @@ def generate_meals():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 	"""Register user."""
+
 	#clear any user currently logged in
 	session.clear()
+
+	#connect to database
+	conn = sqlite3.connect('data.db')
+	db = conn.cursor()
 
 	#checking if user is using submiting form via POST method
 	if request.method == "POST":
@@ -97,15 +107,22 @@ def register():
 		hashed_passwd = crypt.hash(password_1)
 
 		#user form are already validated by validate.js and _checkUser route
-		db.execute("INSERT INTO users (username, hash) VALUES (?, ?)",
-			   		username, hashed_passwd)
+		db.execute("INSERT INTO users (username, hash, email) VALUES (?, ?, ?)",
+					(username, hashed_passwd, email))
+
+		#save changes
+		conn.commit()
 
 		#code for logging user in just after registration
-		db.execute("SELECT * FROM users where username = ?", username)
+		db.execute("SELECT * FROM users where username = ?", (username,))
 		login = db.fetchone()
-		session["user_id"] = login[0]["user_id"]
+		print(login)
+		session["user_id"] = login[0]
 		flash("Registered? Good!", 'alert-success')
+		return redirect(url_for("index"))
 
+		#close database
+		db.close()
 	else:
 		return render_template("register.html")
 
