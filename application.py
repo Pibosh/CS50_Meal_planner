@@ -3,9 +3,11 @@ from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from passlib.hash import sha256_crypt as crypt
 from tempfile import mkdtemp
+import sqlite3
+import re
 from flask_jsglue import *
 from helpers import *
-import sqlite3
+
 
 #adding JSGlue to ensure adding sripts to site
 
@@ -103,10 +105,31 @@ def register():
 		password_2 = request.form.get("password_2")
 		email = request.form.get("email")
 
+	#validate user's entries. Back-end validation in case that user turns off js
+	if not username:
+		flash('Please enter ther user name', 'alert-danger')
+		return render_template("register.html")
+	if not password_1:
+		flash('Please enter the password', 'alert-danger')
+		return render_template("register.html")
+	if not password_2:
+		flash('Please repeat the password', 'alert-danger')
+		return render_template("register.html")
+	if password_1 != password_2:
+		flash('Passwords must be the same', 'alert-danger')
+		return render_template("register.html")
+	if not email:
+		flash('Please enter e-mail address', 'alert-danger')
+		return render_template("register.html")
+	if re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+		#email check by regular expression. More on http://emailregex.com/
+		flash('Please enter valide e-mail address', 'alert-danger')
+		return render_template("register.html")
+
 		#hash password
 		hashed_passwd = crypt.hash(password_1)
 
-		#user form are already validated by validate.js and _checkUser route
+		#insert valid user into users table
 		db.execute("INSERT INTO users (username, hash, email) VALUES (?, ?, ?)",
 					(username, hashed_passwd, email))
 
