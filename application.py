@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, jsonify
 from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from passlib.hash import sha256_crypt as crypt
@@ -166,8 +166,15 @@ def logout():
 
 @app.route('/_checkUser', methods=['POST'])
 def _checkUser():
-	"""TODO"""
+	username = request.args.get("username")
+	element = "username"
+	user_test = check_database(element, username)
+	return jsonify(result=user_test)
+
 
 @app.route('/_checkEmail', methods=['POST'])
 def _checkEmail():
-	"""TODO"""
+	email = request.args.get("email")
+	element = "email"
+	email_test = check_database(element, email)
+	return jsonify(result=email_test)
