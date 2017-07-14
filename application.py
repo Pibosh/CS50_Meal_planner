@@ -109,6 +109,9 @@ def register():
 		if not username:
 			flash('Please enter ther user name', 'alert-danger')
 			return render_template("register.html")
+		if check_database("username", username) == False:
+			flash('Username already taken', 'alert-danger')
+			return render_template("register.html")
 		if not password_1:
 			flash('Please enter the password', 'alert-danger')
 			return render_template("register.html")
@@ -121,9 +124,12 @@ def register():
 		if not email:
 			flash('Please enter e-mail address', 'alert-danger')
 			return render_template("register.html")
-		if re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+		if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
 			#email check by regular expression. More on http://emailregex.com/
-			flash('Please enter valide e-mail address', 'alert-danger')
+			flash('Please enter valid e-mail address', 'alert-danger')
+			return render_template("register.html")
+		if check_database("email", email) == False:
+			flash('Email already registered', 'alert-danger')
 			return render_template("register.html")
 
 		#hash password

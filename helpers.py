@@ -17,13 +17,13 @@ def login_required(f):
 
 def check_database(element, entry):
     #connect to database
-	conn = sqlite3.connect('data.db')
-	db = conn.cursor()
+    conn = sqlite3.connect('data.db')
+    db = conn.cursor()
+    db.execute("SELECT * FROM users WHERE %s=?" % element, (entry,))
+    element_check = db.fetchall()
+    db.close()
 
-    db.execute("SELECT * FROM users WHERE ? = ?", (element, entry))
-    user_check = db.fetchall()
-
-    if len(user_check) != 0:
-        return True
-    else:
+    if len(element_check) != 0:
         return False
+    else:
+        return True
