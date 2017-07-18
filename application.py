@@ -145,7 +145,6 @@ def register():
 		#code for logging user in just after registration
 		db.execute("SELECT * FROM users where username = ?", (username,))
 		login = db.fetchone()
-		print(login)
 		session["user_id"] = login[0]
 		flash("Registered? Good!", 'alert-success')
 		return redirect(url_for("index"))
