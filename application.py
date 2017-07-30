@@ -171,7 +171,7 @@ def logout():
 
 @app.route('/_checkUser', methods=['POST'])
 def _checkUser():
-	username = request.args.get("username")
+	username = request.form["username"]
 	element = "username"
 	user_test = check_database(element, username)
 	return jsonify(result=user_test)
@@ -179,7 +179,7 @@ def _checkUser():
 
 @app.route('/_checkEmail', methods=['POST'])
 def _checkEmail():
-	email = request.args.get("email")
+	email = request.form["email"]
 	element = "email"
 	email_test = check_database(element, email)
 	return jsonify(result=email_test)
