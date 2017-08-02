@@ -2,3 +2,7 @@
   margin-bottom: 0px;
   background-color: #07423d
 }
+
+#username_check, #password_1_check, #password_2_check, #email_check {
+  color: #D33682;
+}

@@ -4,15 +4,27 @@ from passlib.apps import custom_app_context as pwd_context
 from passlib.hash import sha256_crypt as crypt
 from tempfile import mkdtemp
 import sqlite3
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Mail, Message
 import re
 from flask_jsglue import *
 from helpers import *
 
-
 #adding JSGlue to ensure adding sripts to site
-
 app = Flask(__name__)
 JSGlue(app)
+
+#configuring email
+
+app.config.update(dict(
+MAIL_SERVER = 'smtp.googlemail.com',
+MAIL_PORT = 465,
+MAIL_USE_TLS = False,
+MAIL_USE_SSL = True,
+MAIL_USERNAME = 'pibosz@gmail.com',
+MAIL_PASSWORD = 'kzkgop807',
+))
+mail = Mail(app)
 
 #connecting to database and creating a cursor
 conn = sqlite3.connect('data.db')
@@ -60,6 +72,10 @@ if app.config["DEBUG"]:
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+# configuring secret key for url tokenizer
+app.config["SECRET_KEY"] = "kl3zbytomash"
+ts = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+
 Session(app)
 
 @app.route('/')
@@ -142,11 +158,17 @@ def register():
 		#save changes
 		conn.commit()
 
-		#code for logging user in just after registration
-		db.execute("SELECT * FROM users where username = ?", (username,))
-		login = db.fetchone()
-		session["user_id"] = login[0]
-		flash("Registered? Good!", 'alert-success')
+		#send confirmation email
+		site_address = "http://127.0.0.1:5000/confirm/"
+		token = ts.dumps(email, salt='email-confirm-key')
+		text = "Hello, this is confirmation link: %s%s" % (site_address, token)
+		msg = Message('Confirmation - Meal planner', sender='pibosz@gmail.com',
+					  body=text,
+					  recipients=[email])
+		mail.send(msg)
+
+		#inform users about confirmation e-mail
+		flash("Confirmation link was sent to %s" % email, 'alert-success')
 		return redirect(url_for("index"))
 
 		#close database
@@ -168,6 +190,30 @@ def logout():
 
 	# redirect user to login form
 	return redirect(url_for("login"))
+
+@app.route('/confirm/<token>')
+def confirm(token):
+
+	conn = sqlite3.connect('data.db')
+	db = conn.cursor()
+
+	try:
+		email = ts.loads(token, salt='email-confirm-key', max_age=86400)
+	except:
+		flash("Email not found. Activation link may be expired", 'alert-danger')
+		return redirect(url_for("index"))
+
+	#Set user as veryfied
+	db.execute("UPDATE users SET veryfied = 1 WHERE email = \"%s\"" % email)
+	conn.commit()
+
+	#Login veryfied user
+	db.execute("SELECT username FROM users WHERE email = \"%s\"" % email)
+	user = db.fetchone()
+	print(user)
+	session["user_id"] = user
+	flash("You confirmed your account!", 'alert-success')
+	return redirect(url_for("index"))
 
 @app.route('/_checkUser', methods=['POST'])
 def _checkUser():
