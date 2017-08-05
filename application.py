@@ -176,10 +176,39 @@ def register():
 	else:
 		return render_template("register.html")
 
-@app.route('/login')
+@app.route('/login', methods=["GET", "POST"])
 def login():
-	flash('TODO', 'alert-info')
-	return render_template('login.html')
+	#connect to database
+	conn = sqlite3.connect('data.db')
+	db = conn.cursor()
+
+	#server-side validation
+	if request.method == "POST":
+		login = request.form.get("login")
+		password = request.form.get("password")
+		print(type(login))
+		print(login)
+
+		if login == "":
+			flash('Please enter ther login', 'alert-danger')
+			return render_template("login.html")
+		if password == "":
+			flash('Please enter ther login', 'alert-danger')
+			return render_template("login.html")
+
+		db.execute("SELECT * FROM users WHERE username=?", (login,))
+		login_result = db.fetchone()
+
+		if len(login_result) != 5 \
+		or not pwd_context.verify(password, login_result[2]):
+			flash('Invalid login or password', 'alert-danger')
+			return render_template("login.html")
+		else:
+			session["user_id"] = login
+			return redirect(url_for("index"))
+
+	else:
+		return render_template('login.html')
 
 @app.route('/logout')
 @login_required
@@ -189,7 +218,7 @@ def logout():
 	session.clear()
 
 	# redirect user to login form
-	return redirect(url_for("login"))
+	return redirect(url_for("index"))
 
 @app.route('/confirm/<token>')
 def confirm(token):
@@ -214,6 +243,9 @@ def confirm(token):
 	session["user_id"] = user
 	flash("You confirmed your account!", 'alert-success')
 	return redirect(url_for("index"))
+
+	#close database
+	db.close()
 
 @app.route('/_checkUser', methods=['POST'])
 def _checkUser():
