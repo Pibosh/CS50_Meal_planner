@@ -193,7 +193,7 @@ def login():
 			flash('Please enter ther login', 'alert-danger')
 			return render_template("login.html")
 		if password == "":
-			flash('Please enter ther login', 'alert-danger')
+			flash('Please enter ther password', 'alert-danger')
 			return render_template("login.html")
 
 		db.execute("SELECT * FROM users WHERE username=?", (login,))
@@ -202,7 +202,11 @@ def login():
 		if len(login_result) != 5 \
 		or not pwd_context.verify(password, login_result[2]):
 			flash('Invalid login or password', 'alert-danger')
-			return render_template("login.html")
+			return redirect(url_for("login"))
+		elif login_result[4] != 1:
+			flash('Account is not activated yet. Please check your email.', \
+			 	  'alert-danger')
+			return redirect(url_for("login"))
 		else:
 			session["user_id"] = login
 			return redirect(url_for("index"))
@@ -233,11 +237,11 @@ def confirm(token):
 		return redirect(url_for("index"))
 
 	#Set user as veryfied
-	db.execute("UPDATE users SET veryfied = 1 WHERE email = \"%s\"" % email)
+	db.execute("UPDATE users SET veryfied = 1 WHERE email=?", (email,))
 	conn.commit()
 
 	#Login veryfied user
-	db.execute("SELECT username FROM users WHERE email = \"%s\"" % email)
+	db.execute("SELECT username FROM users WHERE email=?", (email,))
 	user = db.fetchone()
 	print(user)
 	session["user_id"] = user
