@@ -71,6 +71,36 @@ $(document).ready(function() {
       $('#submit-button').prop('disabled', false)
     }
   })
+  $('#dishName').blur(function(){
+    var dishName = $(this).val();
+    if (dishName.length == 0){
+      $('#dishNameCheck').text('Please insert dish name');
+      $('#submit-button').prop('disabled', true)
+    }else{
+      $('#dishNameCheck').text('');
+      $('#submit-button').prop('disabled', false)
+    }
+  })
+  $('#recipeItems').blur(function(){
+    var recipeItems = $(this).val();
+    if (recipeItems.length == 0){
+      $('#recipeItemsCheck').text('Please insert ingridients');
+      $('#submit-button').prop('disabled', true)
+    }else{
+      $('#recipeItemsCheck').text('');
+      $('#submit-button').prop('disabled', false)
+    }
+  })
+  $('#recipeHowTo').blur(function(){
+    var recipeHowTo = $(this).val();
+    if (recipeHowTo.length == 0){
+      $('#recipeHowToCheck').text('Please insert recipe');
+      $('#submit-button').prop('disabled', true)
+    }else{
+      $('#recipeHowToCheck').text('');
+      $('#submit-button').prop('disabled', false)
+    }
+  })
 
   function check_user(){
     var username_input = $('#username').val();

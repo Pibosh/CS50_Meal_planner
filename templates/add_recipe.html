@@ -10,12 +10,14 @@
   <div class="form-group">
     <label for="dishName">Dish Name</label>
     <input id="dishName" class="form-control" name="dishName" placeholder="e.g. Onion Soup" type="text" />
+    <span id="dishNameCheck" class="check"></span>
   </div>
   <div class="form-group">
-    <label for="recipeItems">Recipe items</label>
+    <label for="recipeItems">Ingridients</label>
     <textarea id="recipeItems" class="form-control" name="recipeItems"
     placeholder="Please, insert coma separated ingridients in singular and end
  with nothing e.g. onion, cabbage, chicken breast, soy sauce" rows=3></textarea>
+    <span id="recipeItemsCheck" class="check"></span>
   </div>
   <div class="form-group">
     <label>Dish type</label><br>
@@ -38,6 +40,7 @@
     <label for="recipeHowTo">Recipe</label>
     <textarea id="recipeHowTo" class="form-control" name="recipeHowTo"
     placeholder="Recipe..." rows=5></textarea>
+    <span id="recipeHowToCheck" class="check"></span>
   </div>
   <div class="form-group">
       <button id="submit-button" class="btn btn-default btn-block" type="submit">Add recipe</button>

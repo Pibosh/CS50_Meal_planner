@@ -3,7 +3,7 @@
   background-color: #07423d
 }
 
-#username_check, #password_1_check, #password_2_check,
-#email_check, #login_check, #password_check {
+.check {
+  font-weight: bold;
   color: #D33682;
 }
