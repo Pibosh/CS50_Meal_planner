@@ -44,16 +44,13 @@ db.execute("CREATE TABLE IF NOT EXISTS 'recipe' ('recipe_id' INTEGER PRIMARY KEY
 			'title' VARCHAR(150) NOT NULL, 'prepare' \
 			TEXT NOT NULL, 'meal_type' TEXT, \
 			FOREIGN KEY (user_id) REFERENCES users(id), UNIQUE (title), \
-			CHECK (meal_type IN ('breakfast', 'dinner', 'supper') ));")
-#then - create table containing ingridients
-db.execute("CREATE TABLE IF NOT EXISTS 'ingridients' ('ingridient_id' INTEGER PRIMARY \
-			KEY AUTOINCREMENT NOT NULL, 'ingridient_name' VARCHAR(150), 'unit' \
-			VARCHAR(5), UNIQUE (ingridient_name));")
+			CHECK (meal_type IN ('breakfast', 'dinner', 'supper', 'universal') ));")
 #then - create table containing recipe_items - ingridients for particular recipe
 db.execute("CREATE TABLE IF NOT EXISTS 'recipe_items' ('item_id' INTEGER PRIMARY KEY \
-			NOT NULL, 'recipe_indgridient' VARCHAR(150), 'quantity' REAL NOT NULL, \
-			FOREIGN KEY (item_id) REFERENCES recipe(recipe_id), \
-			FOREIGN KEY (recipe_indgridient) REFERENCES ingridients(ingridient_name));")
+			AUTOINCREMENT NOT NULL, 'recipe_ingridient' VARCHAR(150), \
+			meal_id INTEGER NOT NULL, user_id INTEGER NOT NULL, \
+			FOREIGN KEY (meal_id) REFERENCES recipe(recipe_id), \
+			FOREIGN KEY (user_id) REFERENCES users(id))")
 
 #Saving changes in database and closing connection due to multi-thread issues with flask
 conn.commit()
@@ -90,11 +87,46 @@ def check_recipes():
 	flash('TODO', 'alert-info')
 	return render_template('check_recipes.html')
 
-@app.route('/add_recipe')
+@app.route('/add_recipe', methods=['GET', 'POST'])
 @login_required
 def add_recipe():
-	flash('TODO', 'alert-info')
-	return render_template('add_recipe.html')
+	conn = sqlite3.connect('data.db')
+	db = conn.cursor()
+
+	if request.method == "POST":
+		dishName = request.form.get("dishName")
+		recipeItems = request.form.get("recipeItems")
+		mealType = request.form.get("mealType")
+		recipeHowTo = request.form.get("recipeHowTo")
+		itemsList = recipeItems.split(", ")
+		user_id = session["user_id"]
+
+		if not dishName:
+			flash('Please enter recipe name', 'alert-danger')
+			return render_template("add_recipe.html")
+		if not recipeItems:
+			flash('Please enter the recipe indgridients', 'alert-danger')
+			return render_template("add_recipe.html")
+		if not recipeHowTo:
+			flash('Please enter the recipe', 'alert-danger')
+			return render_template("add_recipe.html")
+
+		db.execute("INSERT INTO recipe (user_id, title, prepare, meal_type) \
+					VALUES (?, ?, ?, ?);", (user_id, dishName, recipeHowTo, mealType))
+
+		meal_id = db.lastrowid
+
+		for item in itemsList:
+			db.execute("INSERT INTO recipe_items (meal_id, recipe_ingridient, user_id) \
+						VALUES (?, ?, ?);", (meal_id, item, user_id))
+
+		conn.commit()
+		db.close()
+
+		flash('You\'ve added {0} recipe!'.format(dishName), 'alert-success')
+		return redirect(url_for("index"))
+	else:
+		return render_template('add_recipe.html')
 
 @app.route('/generate_meals')
 @login_required
@@ -208,7 +240,7 @@ def login():
 			 	  'alert-danger')
 			return redirect(url_for("login"))
 		else:
-			session["user_id"] = login
+			session["user_id"] = login_result[0]
 			return redirect(url_for("index"))
 
 	else:
