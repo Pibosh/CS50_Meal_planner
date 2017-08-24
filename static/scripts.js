@@ -61,7 +61,7 @@ $(document).ready(function() {
       $('#login_check').prop('disabled', false);
     }
   })
-  $('#password').keyup(function(){
+  $('#password').blur(function(){
     var password = $(this).val();
     if (password.length == 0){
       $('#password_check').text('Please insert password');
@@ -100,7 +100,16 @@ $(document).ready(function() {
       $('#recipeHowToCheck').text('');
       $('#submit-button').prop('disabled', false)
     }
-  })
+  });
+  
+  $('#myModal').on('show.bs.modal', function(e) {
+
+    //get data-id attribute of the clicked element
+    var recipeName = $(e.relatedTarget).data('recipe-name');
+
+    //populate the textbox
+    $("#recipe_name").text(recipeName);
+});
 
   function check_user(){
     var username_input = $('#username').val();

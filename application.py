@@ -84,8 +84,24 @@ def index():
 @app.route('/check_recipes')
 @login_required
 def check_recipes():
+	conn = sqlite3.connect('data.db')
+	db = conn.cursor()
+	user_id = session["user_id"]
+
+	db.execute("SELECT * FROM recipe WHERE user_id=?", (user_id,))
+	rows = db.fetchall()
+	data=[]
+	print(rows)
+
+	for row in rows:
+		data.append({
+		"name": row[2],
+		"recipe_id": row[0]
+		})
+
+	print(data)
 	flash('TODO', 'alert-info')
-	return render_template('check_recipes.html')
+	return render_template('check_recipes.html', rows=data)
 
 @app.route('/add_recipe', methods=['GET', 'POST'])
 @login_required
@@ -218,8 +234,6 @@ def login():
 	if request.method == "POST":
 		login = request.form.get("login")
 		password = request.form.get("password")
-		print(type(login))
-		print(login)
 
 		if login == "":
 			flash('Please enter ther login', 'alert-danger')
@@ -282,6 +296,48 @@ def confirm(token):
 
 	#close database
 	db.close()
+
+@app.route('/edit/<recipe_id>', methods=["POST", "GET"])
+@login_required
+def edit(recipe_id):
+	if request.method == "POST":
+		flash("Not yet my friend, not yet :)", 'alert-danger')
+		return redirect(url_for("index"))
+	else:
+		conn = sqlite3.connect('data.db')
+		db = conn.cursor()
+
+		db.execute("SELECT * FROM recipe WHERE recipe_id=?", (recipe_id,))
+		recipe_data = db.fetchone()
+		recipe_data = list(recipe_data)
+		r_title = recipe_data[2]
+		r_prepare = recipe_data[3]
+		r_type = recipe_data[4]
+
+		db.execute("SELECT recipe_ingridient FROM recipe_items WHERE meal_id=?", (recipe_id,))
+		r_items = db.fetchall()
+		r_items = [x[0] for x in r_items]
+		print(r_items)
+		r_items = ", ".join(r_items)
+
+		breakfast = ""
+		dinner = ""
+		supper = ""
+		universal = ""
+
+		if r_type == "breakfast":
+			breakfast = "active"
+		elif r_type == "dinner":
+			dinner = "active"
+		elif r_type == "supper":
+			supper = "active"
+		else:
+			universal = "active"
+
+		return render_template('edit_recipe.html', recipe_id=recipe_id,
+								title=r_title, prepare=r_prepare, items=r_items,
+								breakfast=breakfast, dinner=dinner,
+								supper=supper, universal=universal)
 
 @app.route('/_checkUser', methods=['POST'])
 def _checkUser():
