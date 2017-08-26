@@ -18,14 +18,16 @@
         <p>Are you sure you want to delete <span id="recipe_name"></span> recipe?</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal">Yes</button>
+        <button type="button" class="btn btn-default"
+        data-dismiss="modal">No</button>
+        <button id="deleteBtn" type="button" class="btn btn-default"
+        data-dismiss="modal" data-recipe-id="" data-recipe-name="">Yes</button>
       </div>
     </div>
 
   </div>
 </div>
-<h2> This site is under construction </h2>
+<h2> Look for your dish </h2>
 <table class="table table-striped">
     <tr>
         <th colspan="3">Recipe Name</th>
@@ -34,8 +36,11 @@
     {% for row in rows %}
     <tr>
         <td>{{row.name}}</td>
-        <td><a href="{{url_for('edit', recipe_id='%s' % row.recipe_id)}}" class="btn btn-info" role="button">Edit</a></td>
-        <td><button type="button" data-recipe-name="{{row.name}}" class="btn btn-info" data-toggle="modal" data-target="#myModal">Delete</button></td>
+        <td><a href="{{url_for('edit', recipe_id='%s' % row.recipe_id)}}"
+          class="btn btn-info" role="button">Edit</a></td>
+        <td><button type="button" data-recipe-name="{{row.name}}"
+          data-recipe-id="{{row.recipe_id}}" class="btn btn-info"
+          data-toggle="modal" data-target="#myModal">Delete</button></td>
     </tr>
     {% endfor %}
 {% endblock %}

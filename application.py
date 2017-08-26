@@ -100,7 +100,6 @@ def check_recipes():
 		})
 
 	print(data)
-	flash('TODO', 'alert-info')
 	return render_template('check_recipes.html', rows=data)
 
 @app.route('/add_recipe', methods=['GET', 'POST'])
@@ -300,13 +299,52 @@ def confirm(token):
 @app.route('/edit/<recipe_id>', methods=["POST", "GET"])
 @login_required
 def edit(recipe_id):
+
 	if request.method == "POST":
-		flash("Not yet my friend, not yet :)", 'alert-danger')
-		return redirect(url_for("index"))
-	else:
 		conn = sqlite3.connect('data.db')
 		db = conn.cursor()
 
+		dishName = request.form.get("dishName")
+		recipeItems = request.form.get("recipeItems")
+		mealType = request.form.get("mealType")
+		recipeHowTo = request.form.get("recipeHowTo")
+		itemsList = recipeItems.split(", ")
+		user_id = session["user_id"]
+
+		if not dishName:
+			flash('Please enter recipe name', 'alert-danger')
+			return render_template("edit_recipe.html")
+		if not recipeItems:
+			flash('Please enter the recipe indgridients', 'alert-danger')
+			return render_template("edit_recipe.html")
+		if not recipeHowTo:
+			flash('Please enter the recipe', 'alert-danger')
+			return render_template("edit_recipe.html")
+
+		db.execute("UPDATE recipe SET title=?, prepare=?, meal_type=? \
+					WHERE recipe_id=?", (dishName, recipeHowTo, mealType,
+					recipe_id))
+
+		for item in itemsList:
+			db.execute("SELECT recipe_ingridient FROM recipe_items WHERE \
+						meal_id=? AND recipe_ingridient=?", (recipe_id, item))
+			check_item = db.fetchone()
+			if check_item == None:
+				db.execute("INSERT INTO recipe_items (meal_id, \
+							recipe_ingridient, user_id) VALUES (?, ?, ?)",
+							(recipe_id, item, user_id))
+			else:
+				continue
+
+		conn.commit()
+		db.close()
+
+		flash("You've edited %s recipe!" % dishName, 'alert-success')
+		return redirect(url_for("index"))
+
+	else:
+		conn = sqlite3.connect('data.db')
+		db = conn.cursor()
 		db.execute("SELECT * FROM recipe WHERE recipe_id=?", (recipe_id,))
 		recipe_data = db.fetchone()
 		recipe_data = list(recipe_data)
@@ -334,10 +372,26 @@ def edit(recipe_id):
 		else:
 			universal = "active"
 
+		db.close()
+
 		return render_template('edit_recipe.html', recipe_id=recipe_id,
 								title=r_title, prepare=r_prepare, items=r_items,
 								breakfast=breakfast, dinner=dinner,
 								supper=supper, universal=universal)
+
+@app.route('/delete', methods=['POST'])
+def delete():
+	conn = sqlite3.connect('data.db')
+	db = conn.cursor()
+	recipe_id = request.form["recipe_id"]
+	recipe_name = request.form["recipe_name"]
+
+	db.execute("DELETE FROM recipe WHERE recipe_id=?", (recipe_id,))
+	db.execute("DELETE FROM recipe_items WHERE meal_id=?", (recipe_id,))
+
+	conn.commit()
+	db.close()
+	return jsonify(result="success")
 
 @app.route('/_checkUser', methods=['POST'])
 def _checkUser():

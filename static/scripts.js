@@ -10,7 +10,8 @@ $(document).ready(function() {
       $('#username_check').text('Checking...');
       check_user();
     }
-  })
+  });
+
   $('#password_1').blur(function(){
     var password_input = $(this).val();
     if (password_input.length < 6){
@@ -20,7 +21,8 @@ $(document).ready(function() {
       $('#password_1_check').text('');
       $('#submit-button').prop('disabled', false)
     }
-  })
+  });
+
   $('#password_2').blur(function(){
     var password_input1 = $('#password_1').val();
     var password_input2 = $(this).val();
@@ -34,7 +36,8 @@ $(document).ready(function() {
       $('#password_2_check').text('');
       $('#submit-button').prop('disabled', false);
     }
-  })
+  });
+
   $('#email').keyup(function(){
     var email_input = $(this).val();
     var re = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/igm;
@@ -50,7 +53,8 @@ $(document).ready(function() {
       $('#email_check').text('Checking...');
       check_email()
     }
-  })
+  });
+
   $('#login').blur(function(){
     var login = $(this).val();
     if (login.length == 0){
@@ -60,7 +64,8 @@ $(document).ready(function() {
       $('#login_check').text('');
       $('#login_check').prop('disabled', false);
     }
-  })
+  });
+
   $('#password').blur(function(){
     var password = $(this).val();
     if (password.length == 0){
@@ -70,7 +75,8 @@ $(document).ready(function() {
       $('#password_check').text('');
       $('#submit-button').prop('disabled', false)
     }
-  })
+  });
+
   $('#dishName').blur(function(){
     var dishName = $(this).val();
     if (dishName.length == 0){
@@ -80,7 +86,8 @@ $(document).ready(function() {
       $('#dishNameCheck').text('');
       $('#submit-button').prop('disabled', false)
     }
-  })
+  });
+
   $('#recipeItems').blur(function(){
     var recipeItems = $(this).val();
     if (recipeItems.length == 0){
@@ -90,7 +97,8 @@ $(document).ready(function() {
       $('#recipeItemsCheck').text('');
       $('#submit-button').prop('disabled', false)
     }
-  })
+  });
+
   $('#recipeHowTo').blur(function(){
     var recipeHowTo = $(this).val();
     if (recipeHowTo.length == 0){
@@ -101,15 +109,35 @@ $(document).ready(function() {
       $('#submit-button').prop('disabled', false)
     }
   });
-  
-  $('#myModal').on('show.bs.modal', function(e) {
 
+  $('#myModal').on('show.bs.modal', function(e) {
     //get data-id attribute of the clicked element
     var recipeName = $(e.relatedTarget).data('recipe-name');
-
+    var recipeId = $(e.relatedTarget).data('recipe-id');
+    console.log(recipeId);
+    console.log(recipeName);
+    $('#deleteBtn').attr("data-recipe-id", recipeId)
+    $('#deleteBtn').attr("data-recipe-name", recipeName)
     //populate the textbox
     $("#recipe_name").text(recipeName);
-});
+  });
+
+ $('#deleteBtn').click(function() {
+    var id = $(this).data('recipe-id')
+    var name = $(this).data('recipe-name')
+    $.post('/delete',
+    {
+      recipe_id: id,
+      recipe_name: name
+    }, function(result) {
+      if (result.result == "success"){
+      location.reload();
+      }else{
+      alert("Something went wrong");
+      location.reload();
+      }
+    })
+  });
 
   function check_user(){
     var username_input = $('#username').val();
