@@ -110,6 +110,26 @@ $(document).ready(function() {
     }
   });
 
+$('#searchRecipe').keyup(function(){
+  var input = $(this).val();
+  var filter = input.toUpperCase();
+  console.log(filter);
+  var table = $('#recipe_list');
+  var tr = table.find("tr");
+  var td;
+  var i;
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+})
+
   $('#myModal').on('show.bs.modal', function(e) {
     //get data-id attribute of the clicked element
     var recipeName = $(e.relatedTarget).data('recipe-name');
