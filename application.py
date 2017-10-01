@@ -210,7 +210,7 @@ def register():
 		site_address = "http://127.0.0.1:5000/confirm/"
 		token = ts.dumps(email, salt='email-confirm-key')
 		text = "Hello, this is confirmation link: %s%s" % (site_address, token)
-		msg = Message('Confirmation - Meal planner', sender='pibosz@gmail.com',
+		msg = Message('Confirmation - Meal planner', sender='XXXXX',
 					  body=text,
 					  recipients=[email])
 		mail.send(msg)
