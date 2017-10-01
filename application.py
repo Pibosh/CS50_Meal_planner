@@ -21,8 +21,8 @@ MAIL_SERVER = 'smtp.googlemail.com',
 MAIL_PORT = 465,
 MAIL_USE_TLS = False,
 MAIL_USE_SSL = True,
-MAIL_USERNAME = 'pibosz@gmail.com',
-MAIL_PASSWORD = 'kzkgop807',
+MAIL_USERNAME = 'XXXXX',
+MAIL_PASSWORD = 'XXXXX',
 ))
 mail = Mail(app)
 
@@ -146,6 +146,7 @@ def add_recipe():
 @app.route('/generate_meals')
 @login_required
 def generate_meals():
+	
 	flash('TODO', 'alert-info')
 	return render_template('generate_meals.html')
 
